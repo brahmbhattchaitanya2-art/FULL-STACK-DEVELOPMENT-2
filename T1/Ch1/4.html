@@ -1,0 +1,35 @@
+<!-- write one json  string with date property yyyy-mm-dd  and print in ist form and print date will clicking on button  -->
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script>
+
+        function call() {
+
+
+            let obj2 = JSON.parse('{"name": "Dev","age": "19","bod":"2006-05-22"}')
+
+            let d = new Date(obj2.bod)
+            document.getElementById("demo").innerHTML = d
+
+        }
+
+
+
+    </script>
+</head>
+
+<body>
+    <p id="demo"></p>
+
+    <button onclick="call()">Click</button>
+
+</body>
+
+</html>

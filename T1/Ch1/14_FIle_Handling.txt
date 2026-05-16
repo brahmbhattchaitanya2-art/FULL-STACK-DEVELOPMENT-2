@@ -1,0 +1,37 @@
+Read file
+write file
+Append file
+Rename file
+Delete file
+Create Directoy
+Remove Directoy
+Copy File
+
+
+
+Async Method(Non-Blocking)
+
+fs.readFile()
+fs.writeFile()
+fs.appendFile()
+fs.rename()
+fs.unlink()
+fs.mkdir()
+fs.rmdir()
+fs.copyFile()
+
+
+
+Sync Method(Blocking)
+
+
+fs.readFileSync()
+fs.writeFileSync()   (file nam, content ,mutiple use)
+fs.appendFileSync()
+Fs.renameSync()
+fs.unlinkSync()
+fs.mkdirSync()
+fs.rmdirSync()
+fs.copyFileSync()
+
+

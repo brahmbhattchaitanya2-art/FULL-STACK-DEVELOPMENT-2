@@ -1,0 +1,2 @@
+{"d":{"a":10,"b":20,"c":[30,10]}}
+Final addition of all 3 is 320

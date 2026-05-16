@@ -1,0 +1,33 @@
+<!-- node -v
+npm -v -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        function main(cb)
+        {
+            console.log("Perform Operation 1")
+            setTimeout(function(){console.log("Operation Completed")},2000);
+
+            console.log("Perform operation 2")
+            }
+        function callback_fun(result)
+        {
+            console.log("Result"+result)
+        }
+main(callback_fun)
+
+
+    </script>
+   
+
+
+
+
+</head>
+<body>
+    
+</body>
+</html>
