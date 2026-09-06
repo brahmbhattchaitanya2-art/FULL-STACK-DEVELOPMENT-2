@@ -1,0 +1,339 @@
+======================== MONGODB INDEXING NOTES ========================
+
+-------------------------------------------------------
+1. Create Collection
+-------------------------------------------------------
+
+db.ind.insertMany([
+ { id:1, name:"abc", age:10 },
+ { id:2, name:"xyz", age:12 },
+ { id:3, name:"abc", age:15 },
+ { id:4, name:"pqr", age:13 },
+ { id:5, name:"xyz", age:15 },
+ { id:6, name:"abc", age:8 }
+])
+
+-------------------------------------------------------
+2. Query WITHOUT Index
+-------------------------------------------------------
+
+db.ind.find({ age:{ $gt:12 } }).explain("executionStats")
+
+Output:
+
+Stage                : COLLSCAN
+nReturned            : 3
+totalKeysExamined    : 0
+totalDocsExamined    : 6
+
+Meaning:
+- No index is used.
+- MongoDB scans all 6 documents.
+- 3 documents are returned.
+
+-------------------------------------------------------
+3. Create Index
+-------------------------------------------------------
+
+db.ind.createIndex({ age:1 })
+
+-------------------------------------------------------
+4. Query WITH Index
+-------------------------------------------------------
+
+db.ind.find({ age:{ $gt:12 } }).explain("executionStats")
+
+Output:
+
+Stage                : IXSCAN
+nReturned            : 3
+totalKeysExamined    : 3
+totalDocsExamined    : 3
+
+Meaning:
+- Index is used.
+- Only 3 index keys checked.
+- Only 3 documents examined.
+
+-------------------------------------------------------
+5. Query using Indexed Field
+-------------------------------------------------------
+
+db.ind.find({
+ age:15,
+ name:"abc"
+}).explain("executionStats")
+
+Output:
+
+Stage                : IXSCAN
+Index Name           : age_1
+nReturned            : 1
+totalKeysExamined    : 2
+totalDocsExamined    : 2
+
+Meaning:
+- MongoDB uses age index.
+- Two documents have age 15.
+- Only one document has name "abc".
+- One document is returned.
+
+-------------------------------------------------------
+6. Query using Non-Indexed Field
+-------------------------------------------------------
+
+db.ind.find({
+ name:"abc"
+}).explain("executionStats")
+
+Output:
+
+Stage                : COLLSCAN
+nReturned            : 3
+totalKeysExamined    : 0
+totalDocsExamined    : 6
+
+Meaning:
+- No index on name.
+- MongoDB scans entire collection.
+
+=======================================================
+TASK 1 (Compound Index)
+=======================================================
+
+Create Collection
+
+db.indstud.insertMany([
+ { id:123433, name:"ddd", age:32 },
+ { id:123434, name:"bbb", age:20 },
+ { id:123435, name:"aaa", age:10 }
+])
+
+Create Compound Index
+
+db.indstud.createIndex({
+ age:1,
+ name:1
+})
+
+Query
+
+db.indstud.find({
+ age:{ $gt:15 },
+ name:"bbb"
+}).explain("executionStats")
+
+Output
+
+Stage                : IXSCAN
+Index Name           : age_1_name_1
+nReturned            : 1
+totalKeysExamined    : 2
+totalDocsExamined    : 1
+
+Meaning:
+- Compound index is used.
+- MongoDB checks 2 index keys.
+- Only 1 document matches.
+- Only 1 document examined.
+
+=======================================================
+TASK 2 (Partial Index)
+=======================================================
+
+Drop Existing Index
+
+db.indstud.dropIndexes()
+
+Create Partial Index
+
+db.indstud.createIndex(
+ { age:1 },
+ { partialFilterExpression:{ age:{ $gt:13 } } }
+)
+
+Query
+
+db.indstud.find({
+ age:{ $gt:30 }
+}).explain("executionStats")
+
+Expected Output
+
+Stage                : IXSCAN
+isPartial            : true
+
+If document exists (age 32)
+
+nReturned            : 1
+
+If document does not exist
+
+nReturned            : 0
+
+=======================================================
+ERRORS
+=======================================================
+
+Error:
+
+IndexKeySpecsConflict
+
+Reason:
+Index with same name already exists.
+
+Solution:
+
+db.indstud.dropIndex("age_1")
+
+OR
+
+db.indstud.dropIndexes()
+
+Then create index again.
+
+=======================================================
+IMPORTANT FIELDS IN EXPLAIN()
+=======================================================
+
+1. stage
+-----------------
+COLLSCAN = No Index
+
+IXSCAN = Index Used
+
+-------------------------------------------------------
+
+2. nReturned
+-----------------
+Number of documents returned.
+
+-------------------------------------------------------
+
+3. totalKeysExamined
+-----------------
+Number of index keys checked.
+
+-------------------------------------------------------
+
+4. totalDocsExamined
+-----------------
+Number of documents examined.
+
+=======================================================
+EXAM SHORTCUT
+=======================================================
+
+COLLSCAN
+→ No Index
+→ Whole Collection Scanned
+
+IXSCAN
+→ Index Used
+→ Faster Search
+
+nReturned
+→ Number of Documents Returned
+
+totalKeysExamined
+→ Number of Index Keys Checked
+
+totalDocsExamined
+→ Number of Documents Examined
+
+=======================================================
+GOLDEN RULE
+=======================================================
+
+Indexed Field  → IXSCAN
+
+Non-Indexed Field → COLLSCAN
+
+nReturned → Documents Returned
+
+totalKeysExamined → Index Entries Checked
+
+totalDocsExamined → Documents Checked
+
+
+
+create stud collection and preforming the following task
+
+{id:1,name:"abc",city:"ahmedabad",age:18,marks:75}
+{id:2,name:"xyz",city:"surat",age:20,marks:82}
+{id:3,name:"pqr",city:"ahmedabad",age:19,marks:68}
+{id:4,name:"abc",city:"rajkot",age:21,marks:90}
+{id:5,name:"xyz",city:"ahmedabad",age:20,marks:85}
+{id:6,name:"lmn",city:"surat",age:18,marks:60}
+
+
+
+
+db.indexstud.insertMany([
+  {id:1, name:"abc", city:"ahmedabad", age:18, marks:75},
+  {id:2, name:"xyz", city:"surat", age:20, marks:82},
+  {id:3, name:"pqr", city:"ahmedabad", age:19, marks:68},
+  {id:4, name:"abc", city:"rajkot", age:21, marks:90},
+  {id:5, name:"xyz", city:"ahmedabad", age:20, marks:85},
+  {id:6, name:"lmn", city:"surat", age:18, marks:60}
+]);
+
+
+
+
+que
+create index on age field and retire all student whose age is 20. verify the excution static 
+db.indexstud.createIndex({age:1})
+db.indexstud.find({age:20}).explain("executionStats")
+
+
+
+
+drop the existing index. creta a compod on age and name retier the stud whose age 20 and name is xyz 
+db.indexstud.dropIndex({age:1})
+db.indexstud.find({age:20,name:"xyz"}).explain("executionStats")
+
+using the same compade index retire the all student whose name is abc and verfiy the ex
+ db.indexstud.find({name:"abc"}).explain("executionStats")
+
+
+
+
+drop the existing compade index create a partic index on mark field for student having marks gt than 80.retire alll whose marks gt than 80 and verfiy the excition
+
+ db.indexstud.dropIndex({age:1,name:1})
+db.indexstud.createIndex({marks:1},{partialFilterExpression:{marks:{$gt:80}}})
+db.indexstud.find({marks:{$gt:80}}).explain("executionStats")
+
+
+
+using the same partoil index retire whose mark are gt than 70 and verfy th executon static
+db.indexstud.find({marks:{$gt:70}}).explain("executionStats")
+
+
+
+
+
+
+validtors
+
+
+
+riquired
+unquie
+default
+min.max
+min,max
+minlength,maxlength
+enum,   validate
+
+match strict
+trim
+lowercase,
+uppercase
+lowercase
+
+
+
+
+

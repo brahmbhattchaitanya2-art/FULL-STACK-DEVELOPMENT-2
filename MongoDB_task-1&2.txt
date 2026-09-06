@@ -1,0 +1,159 @@
+MongoDB Practical – Employee Collection
+
+Create a collection named **employee** having the fields:
+
+* _id
+* name
+* age
+* position
+* salary
+
+Insert the following records into the collection.
+
+db.employee.insertMany([
+{ _id: 1, name: "aric", age: 30, position: "Full Stack Developer", salary: 600000 },
+{ _id: 2, name: "arica", age: 35, position: "Intern", salary: 8000 },
+{ _id: 3, name: "arical", age: 40, position: "UX/UI Designer", salary: 56000 },
+{ _id: 4, name: "treric7", age: 37, position: "Team Leader", salary: 85000 },
+{ _id: 5, name: "aliza", age: 25, position: "Software", salary: 45000 },
+{ _id: 6, name: "trin", age: 29, position: "Data Scientist", salary: 75000 },
+{ _id: 7, name: "elizan", age: 25, position: "Full Stack Developer", salary: 49000 }
+]);
+
+1. Find employees whose position is **Full Stack Developer**.
+
+db.employee.find({ position: "Full Stack Developer" })
+
+2. Find employees whose age is greater than 25 and less than or equal to 40.
+
+db.employee.find({
+age: {
+$gt: 25,
+$lte: 40
+}
+})
+
+OR
+
+db.employee.find({
+$and: [
+{ age: { $gt: 25 } },
+{ age: { $lte: 40 } }
+]
+})
+
+3. Display only the names of employees whose age is greater than 25 and less than or equal to 40.
+
+db.employee.find(
+{
+age: {
+$gt: 25,
+$lte: 40
+}
+},
+{
+name: 1,
+_id: 0
+})
+
+4. Find the employee with the highest salary.
+
+db.employee.find(
+{},
+{
+name: 1,
+salary: 1,
+_id: 0
+}).sort({ salary: -1 }).limit(1)
+
+5. Retrieve employees whose salary is greater than 50000.
+
+db.employee.find({
+salary: { $gt: 50000 }
+})
+
+6. Count the number of employees whose salary is greater than 50000.
+
+db.employee.countDocuments({
+salary: { $gt: 50000 }
+})
+
+7. Retrieve employees who are **Software** or **Full Stack Developer** and are below 30 years of age.
+
+db.employee.find({
+age: { $lt: 30 },
+$or: [
+{ position: "Software" },
+{ position: "Full Stack Developer" }
+]
+})
+
+8. Give a 5% salary raise to all **Data Scientists**.
+
+db.employee.updateMany(
+{ position: "Data Scientist" },
+{
+$mul: {
+salary: 1.05
+}
+})
+
+9. Delete all employees who are older than 37 years.
+
+db.employee.deleteMany({
+age: { $gt: 37 }
+})
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+MongoDB Practical
+
+Create a collection named **student** having the fields:
+
+* name
+* age
+* std
+* percentage
+
+Insert 8 records into the collection.
+
+db.student.insertMany([
+{ _id:1, name:"Aarav", age:6, std:1, percentage:88 },
+{ _id:2, name:"Om", age:8, std:3, percentage:91 },
+{ _id:3, name:"Rohan", age:10, std:5, percentage:84 },
+{ _id:4, name:"Meera", age:12, std:7, percentage:95 },
+{ _id:5, name:"Karan", age:14, std:9, percentage:79 },
+{ _id:6, name:"Priya", age:15, std:10, percentage:90 },
+{ _id:7, name:"Rahul", age:16, std:11, percentage:87 },
+{ _id:8, name:"Anjali", age:17, std:12, percentage:93 }
+]);
+
+1. Find all students having age greater than 5.
+
+db.student.find({ age: { $gt: 5 } })
+
+2. Increase the standard (std) of all students by 1.
+
+db.student.updateMany({}, { $inc: { std: 1 } })
+
+3. Arrange all records in descending order of age.
+
+db.student.find().sort({ age: -1 })
+
+4. Show the name of the oldest student.
+
+db.student.find({}, { name: 1, _id: 0 }).sort({ age: -1 }).limit(1)
+
+5. Delete the students who are in 12th standard.
+
+db.student.deleteMany({ std: 12 })
+
+Note:
+If you execute Question 2 before Question 5, then students in std 12 will become std 13. In that case, use:
+
+db.student.deleteMany({ std: 13 })

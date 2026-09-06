@@ -1,0 +1,478 @@
+mongodb commands - clean documentation
+=======================================
+
+note:
+- mongodb commands are case-sensitive for collection and field names.
+- best practice: use small letters for database, collection, and field names.
+- example: use people, not People. use name, not Name.
+- in mongodb, table = collection and row = document.
+
+------------------------------------------------------------
+1. download / install notes
+------------------------------------------------------------
+
+mongodb community server:
+- website: www.mongodb.com
+- go to: product -> community edition -> download community
+- install mongodb community server.
+
+mongodb shell:
+- website: www.mongodb.com/try/download/shell/
+- install mongosh.
+- mongosh is used to run mongodb commands.
+
+start mongodb shell:
+mongosh
+
+------------------------------------------------------------
+2. database commands
+------------------------------------------------------------
+
+show dbs
+definition: shows all available databases.
+
+db
+definition: shows the current selected database.
+
+use global
+definition: switches to database named global.
+note: database is created only when you insert data in it.
+
+use klm
+definition: switches to database named klm.
+note: if klm does not exist, mongodb prepares it. it becomes visible after data is inserted.
+
+------------------------------------------------------------
+3. collection commands
+------------------------------------------------------------
+
+show collections
+definition: shows all collections in the current database.
+note: if no collection exists, output is empty.
+
+db.createcollection("def")
+correct syntax:
+db.createCollection("def")
+
+definition: creates a collection named def.
+exam note: mongodb command createCollection uses capital C.
+
+db.def.renamecollection("fed")
+correct syntax:
+db.def.renameCollection("fed")
+
+definition: renames collection def to fed.
+important: after rename, use db.fed, not db.def.
+
+------------------------------------------------------------
+4. insert commands
+------------------------------------------------------------
+
+insert one document:
+db.def.insertOne({name: "kavan", age: 32})
+
+definition: inserts one document in def collection.
+
+your wrong command:
+db.def.insertOne({name:"kavan" age:32})
+
+correct command:
+db.def.insertOne({name: "kavan", age: 32})
+
+mistake:
+comma is missing between name and age.
+
+insert many documents:
+db.def.insertMany([
+  {name: "kavan", age: 32, city: "ahmedabad"},
+  {name: "meet", age: 25, city: "surat"},
+  {name: "parth", age: 28, city: "vadodara"}
+])
+
+definition: inserts multiple documents at one time.
+
+empty example:
+db.def.insertMany([{},{},{}])
+
+definition: inserts 3 empty documents.
+note: this is allowed, but not useful for real data.
+
+------------------------------------------------------------
+5. find / read commands
+------------------------------------------------------------
+
+find all documents:
+db.people.find()
+
+definition: shows all documents from people collection.
+
+proper small-letter version of your command:
+db.People.find()
+correct:
+db.people.find()
+
+find with condition:
+db.def.find({gender: "male"})
+
+definition: shows only documents where gender is male.
+
+find one document:
+db.def.findOne({name: "kavan"})
+
+definition: shows first matching document only.
+
+pretty output:
+db.def.find().pretty()
+
+definition: displays output in readable format.
+
+------------------------------------------------------------
+6. projection commands
+------------------------------------------------------------
+
+projection means selecting which fields to show or hide.
+
+show only name for male records:
+db.def.find({gender: "male"}, {name: 1})
+
+definition: shows name and _id by default.
+
+hide _id also:
+db.def.find({gender: "male"}, {name: 1, _id: 0})
+
+definition: shows only name, not _id.
+
+hide city field:
+db.def.find({gender: "male"}, {city: 0})
+
+definition: shows all fields except city.
+
+wrong command:
+db.def.find({gender: "male"}, {city: 0, name: 1})
+
+why wrong:
+mongodb does not allow mixing inclusion 1 and exclusion 0 in the same projection.
+exception: _id: 0 is allowed.
+
+correct options:
+db.def.find({gender: "male"}, {name: 1, _id: 0})
+or
+db.def.find({gender: "male"}, {city: 0})
+
+exam mcq:
+- {name: 1, age: 1, _id: 0} is valid.
+- {name: 1, city: 0} is invalid.
+- only _id can be mixed with 0 when using 1.
+
+------------------------------------------------------------
+7. count commands
+------------------------------------------------------------
+
+old style:
+db.def.find({gender: "male"}).count()
+
+better current style:
+db.def.countDocuments({gender: "male"})
+
+definition: counts documents where gender is male.
+
+count all documents:
+db.def.countDocuments()
+
+definition: counts all documents in collection.
+
+------------------------------------------------------------
+8. update commands
+------------------------------------------------------------
+
+update one document:
+db.def.updateOne(
+  {name: "kavan", age: 32},
+  {$set: {name: "abc"}}
+)
+
+definition: finds first document with name kavan and age 32, then changes name to abc.
+note: age remains same.
+
+your command was correct:
+db.def.updateOne({name:"kavan",age:32},{$set:{name:"abc"}})
+
+clean version:
+db.def.updateOne({name: "kavan", age: 32}, {$set: {name: "abc"}})
+
+update many documents:
+db.def.updateMany(
+  {city: "ahmedabad"},
+  {$set: {city: "abad"}}
+)
+
+definition: changes city from ahmedabad to abad for all matching documents.
+
+important correction:
+your note said "change city to abad to ahmedabad".
+correct meaning:
+change city from ahmedabad to abad.
+
+proper small-letter version of your People command:
+wrong / not best:
+db.People.updateMany({"Name":"N5"}, {$set: {"Name":"YO"}})
+
+correct:
+db.people.updateMany({name: "n5"}, {$set: {name: "yo"}})
+
+definition: changes name n5 to yo in all matching documents.
+
+------------------------------------------------------------
+9. upsert command
+------------------------------------------------------------
+
+upsert meaning:
+- if matching document exists: update it.
+- if matching document does not exist: insert new document.
+
+upsert example:
+db.def.updateOne(
+  {city: "switzerland"},
+  {$set: {city: "swiss"}},
+  {upsert: true}
+)
+
+definition: if city switzerland exists, update it to swiss. if not, create new document.
+
+your command:
+db.def.updateMany({city:"switzerland"},{$set:{city:"swiss"}},{upsert:true})
+
+clean command:
+db.def.updateMany({city: "switzerland"}, {$set: {city: "swiss"}}, {upsert: true})
+
+note:
+updateOne with upsert creates at most one new document.
+updateMany with upsert also inserts only one document if no match is found.
+
+another example:
+db.people.updateOne(
+  {age: 45},
+  {$set: {name: "pqr"}},
+  {upsert: true}
+)
+
+definition: if age 45 exists, update name to pqr. if age 45 does not exist, create a new document.
+
+------------------------------------------------------------
+10. delete commands
+------------------------------------------------------------
+
+delete one:
+db.def.deleteOne({city: "abad"})
+
+definition: deletes first document where city is abad.
+
+delete many:
+db.def.deleteMany({city: "abad"})
+
+definition: deletes all documents where city is abad.
+
+delete all documents in collection:
+db.def.deleteMany({})
+
+definition: removes all documents but keeps the collection.
+
+drop collection:
+db.def.drop()
+
+definition: deletes full collection.
+
+drop database:
+db.dropDatabase()
+
+definition: deletes current selected database.
+warning: use carefully.
+
+------------------------------------------------------------
+11. useful filter operators
+------------------------------------------------------------
+
+greater than:
+db.def.find({age: {$gt: 30}})
+definition: age greater than 30.
+
+greater than or equal:
+db.def.find({age: {$gte: 30}})
+definition: age 30 or more.
+
+less than:
+db.def.find({age: {$lt: 30}})
+definition: age less than 30.
+
+less than or equal:
+db.def.find({age: {$lte: 30}})
+definition: age 30 or less.
+
+not equal:
+db.def.find({city: {$ne: "abad"}})
+definition: city is not abad.
+
+in list:
+db.def.find({city: {$in: ["abad", "surat"]}})
+definition: city is abad or surat.
+
+not in list:
+db.def.find({city: {$nin: ["abad", "surat"]}})
+definition: city is not abad and not surat.
+
+and condition:
+db.def.find({city: "abad", gender: "male"})
+definition: city is abad and gender is male.
+
+or condition:
+db.def.find({$or: [{city: "abad"}, {gender: "male"}]})
+definition: city is abad or gender is male.
+
+------------------------------------------------------------
+12. sorting and limiting
+------------------------------------------------------------
+
+sort ascending:
+db.def.find().sort({age: 1})
+definition: age small to big.
+
+sort descending:
+db.def.find().sort({age: -1})
+definition: age big to small.
+
+limit:
+db.def.find().limit(5)
+definition: shows only first 5 documents.
+
+skip:
+db.def.find().skip(5)
+definition: skips first 5 documents.
+
+pagination example:
+db.def.find().skip(5).limit(5)
+definition: skips first 5 and shows next 5.
+
+------------------------------------------------------------
+13. cheat codes / quick commands
+------------------------------------------------------------
+
+clear screen:
+cls
+or
+console.clear()
+
+show current database:
+db
+
+show databases:
+show dbs
+
+show collections:
+show collections
+
+select database:
+use database_name
+
+create collection:
+db.createCollection("collection_name")
+
+insert one:
+db.collection_name.insertOne({field: "value"})
+
+insert many:
+db.collection_name.insertMany([{field: "value1"}, {field: "value2"}])
+
+find all:
+db.collection_name.find()
+
+find with condition:
+db.collection_name.find({field: "value"})
+
+find one:
+db.collection_name.findOne({field: "value"})
+
+show only selected field:
+db.collection_name.find({}, {name: 1, _id: 0})
+
+count:
+db.collection_name.countDocuments()
+
+update one:
+db.collection_name.updateOne({field: "old"}, {$set: {field: "new"}})
+
+update many:
+db.collection_name.updateMany({field: "old"}, {$set: {field: "new"}})
+
+upsert:
+db.collection_name.updateOne({field: "value"}, {$set: {name: "new"}}, {upsert: true})
+
+delete one:
+db.collection_name.deleteOne({field: "value"})
+
+delete many:
+db.collection_name.deleteMany({field: "value"})
+
+delete all records:
+db.collection_name.deleteMany({})
+
+drop collection:
+db.collection_name.drop()
+
+drop database:
+db.dropDatabase()
+
+------------------------------------------------------------
+14. most common mistakes
+------------------------------------------------------------
+
+1. missing comma:
+wrong:
+{name: "kavan" age: 32}
+correct:
+{name: "kavan", age: 32}
+
+2. wrong capital letters:
+not best:
+db.People.find()
+best:
+db.people.find()
+
+3. field name capital problem:
+{name: "kavan"} and {Name: "kavan"} are different fields.
+
+4. projection mixing:
+wrong:
+{name: 1, city: 0}
+correct:
+{name: 1, _id: 0}
+or
+{city: 0}
+
+5. using old count:
+old:
+db.def.find().count()
+better:
+db.def.countDocuments()
+
+------------------------------------------------------------
+15. mini exam memory trick
+------------------------------------------------------------
+
+crud in mongodb:
+c = create = insertOne, insertMany
+r = read = find, findOne
+u = update = updateOne, updateMany
+d = delete = deleteOne, deleteMany
+
+projection:
+1 means show
+0 means hide
+_id is shown by default
+
+upsert:
+update + insert = upsert
+
+table word:
+sql table = mongodb collection
+sql row = mongodb document
+sql column = mongodb field

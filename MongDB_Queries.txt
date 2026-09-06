@@ -1,0 +1,112 @@
+www.mongodb.com
+1 product
+2 community edition
+3 download community
+
+
+8.3.4
+
+
+mongoshell
+www.mongodb.com/try/download/shell/
+(version-2.5.2)
+
+ db.People.find()
+
+  db.People.updateMany({"Name":"N5"},{$set:{"Name":"YO"}})
+
+  db.People.find()
+
+
+   db.People.updateOne({"Age":45},{$set:{"Name":"PQR"}},{upsert:true})
+   check if avaible so update or not excess,not avaible so create
+   
+   
+use Global
+
+
+
+
+
+1.) show dbs
+
+show all available databse
+
+2.) db
+
+current database
+
+3.) show collections
+
+show (tables)
+
+empty if no table are available
+
+4.) use klm
+
+create database with name "klm"
+
+5.) db.createCollection ("def")
+
+create a table with name "def"
+
+6.) db.def.insertOne({name:"kavan" age:32})
+
+insert the row in the table
+
+7.) db.def.insertMany([{},{},{}])
+
+insert multiple rows 
+
+8.) db.def.renameCollection("fed")
+
+rename the collection to fed from def 
+
+9.) db.def.deleteOne({city:"abad"}) 
+
+delete the first record with city abad
+
+10.) db.def.deleteMany({city:"abad"})
+
+delete every record with city abad
+
+11.) db.def.updateOne({name:"kavan",age:32},{$set:{name:"abc"}})
+
+find the record with name kavan and age 32 and update the name to abc and keep the age as it as.
+
+12.) db.def.updateMany({city:"ahmedabad"},{$set:{city:"abad"}})
+
+change city to abad to ahmedabad
+
+13.) "UPSERT"
+
+updates if exists and inserts teh record if it doesnt exists
+
+db.def.updateMany({city:"switzerland"},{$set:{city:"swiss"}},{upsert:true})
+
+14.) COUNT
+
+db.def.find({gender:"male"}).count()
+
+15.) FIND
+
+db.def.find({gender:"male"})
+
+16.) get only names with gender:male
+
+db.def.find({gender:"male"},{name:1})
+
+_id will be printed by default 
+
+if we dont want than => db.def.find({gender:"male"},{name:1,_id:0})
+
+17.) db.def.find({gender:"male"},{city:0})
+
+18.) db.def.find({gender:"male"},{city:0,name:1})
+
+MongoServerError: Cannot do inclusion on field name in exclusion projection
+
+only _id:0 can be done 
+
+combination of 0 and 1 is not allowed (MCQ)
+
